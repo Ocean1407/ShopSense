@@ -1,0 +1,7 @@
+data/ratings_Electronics.csv
+data/ratings_Beauty.csv
+venv/
+__pycache__/
+.DS_Store
+*.pyc
+.vscode/
