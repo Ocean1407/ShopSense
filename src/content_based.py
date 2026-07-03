@@ -22,11 +22,16 @@ def generate_product_name(asin):
     return f"{brands[idx1]} {categories[idx2]}"
 
 def build_item_similarity(df_clean):
-    item_user_matrix = df_clean.pivot_table(
+    # Limit to top 5000 most active users to reduce memory on cloud
+    top_users = df_clean['user_id'].value_counts().head(5000).index
+    df_sample = df_clean[df_clean['user_id'].isin(top_users)]
+    
+    item_user_matrix = df_sample.pivot_table(
         index='product_id',
         columns='user_id',
         values='rating'
     ).fillna(0)
+    
     item_similarity = cosine_similarity(item_user_matrix)
     item_similarity_df = pd.DataFrame(
         item_similarity,
