@@ -22,8 +22,8 @@ def generate_product_name(asin):
     return f"{brands[idx1]} {categories[idx2]}"
 
 def build_item_similarity(df_clean):
-    # Limit to top 5000 most active users to reduce memory on cloud
-    top_users = df_clean['user_id'].value_counts().head(5000).index
+    # Use only top 2000 most active users to stay within cloud memory limits
+    top_users = df_clean['user_id'].value_counts().head(2000).index
     df_sample = df_clean[df_clean['user_id'].isin(top_users)]
     
     item_user_matrix = df_sample.pivot_table(
@@ -31,6 +31,9 @@ def build_item_similarity(df_clean):
         columns='user_id',
         values='rating'
     ).fillna(0)
+    
+    # Only keep products that have at least 1 rating from these users
+    item_user_matrix = item_user_matrix[item_user_matrix.sum(axis=1) > 0]
     
     item_similarity = cosine_similarity(item_user_matrix)
     item_similarity_df = pd.DataFrame(
